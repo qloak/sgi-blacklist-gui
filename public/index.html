@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Roblox Group Ranks Viewer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="stars"></div>
+<div class="stars2"></div>
+<div class="stars3"></div>
+
+  <h1>Blacklist GUI</h1>
+  <input type="number" id="groupId" placeholder="Group ID" />
+  <button onclick="loadRanks()">Start</button>
+  <div id="output"></div>
+
+  <script>
+    async function loadRanks() {
+      const groupId = document.getElementById("groupId").value;
+      const output = document.getElementById("output");
+      output.innerHTML = "Loading...";
+
+      try {
+        const ranksRes = await fetch(`/api/group/${groupId}/ranks`);
+        const ranks = await ranksRes.json();
+
+        output.innerHTML = "";
+        for (const rank of ranks) {
+          const rankDiv = document.createElement("div");
+          rankDiv.classList.add("rank");
+          rankDiv.innerHTML = `<strong>${rank.name}</strong>`;
+
+          const usersRes = await fetch(`/api/group/${groupId}/users/${rank.id}`);
+          const users = await usersRes.json();
+
+          for (const user of users) {
+            const userDiv = document.createElement("div");
+            userDiv.classList.add("user");
+            userDiv.textContent = `${user.username} - https://www.roblox.com/users/${user.userId}/profile`;
+            rankDiv.appendChild(userDiv);
+          }
+
+          output.appendChild(rankDiv);
+        }
+      } catch (e) {
+        output.innerHTML = "Failed to fetch data.";
+        console.error(e);
+      }
+    }
+  </script>
+</body>
+</html>
